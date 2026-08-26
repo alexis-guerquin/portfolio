@@ -35,7 +35,8 @@ export default function Home({ initialProjectId }: { initialProjectId?: string }
     };
 
     void refreshSharedCount();
-    const intervalId = window.setInterval(() => void refreshSharedCount(), 8_000);
+    // One minute keeps remote updates visible without exhausting a free Redis quota.
+    const intervalId = window.setInterval(() => void refreshSharedCount(), 60_000);
     return () => {
       isCurrent = false;
       window.clearInterval(intervalId);

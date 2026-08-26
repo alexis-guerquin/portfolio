@@ -1,8 +1,10 @@
 import Image from "next/image";
 import { BriefcaseBusiness, Layers3, Phone } from "lucide-react";
-import { ExternalLinkIcon } from "@animateicons/react/lucide";
-import LoopingAnimateIcon from "@/components/LoopingAnimateIcon";
 import { Locale } from "@/data/site";
+
+function LinkedInIcon() {
+  return <svg className="size-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 3H3.55C3.25 3 3 3.25 3 3.55v16.9c0 .3.25.55.55.55h16.9c.3 0 .55-.25.55-.55V3.55c0-.3-.25-.55-.55-.55ZM8.34 18.34H5.67V9.75h2.67v8.59ZM7 8.58a1.55 1.55 0 1 1 0-3.1 1.55 1.55 0 0 1 0 3.1Zm11.35 9.76h-2.66v-4.18c0-1 0-2.28-1.39-2.28-1.39 0-1.6 1.08-1.6 2.2v4.26H10.04V9.75h2.56v1.17h.04c.36-.67 1.23-1.39 2.53-1.39 2.7 0 3.2 1.78 3.2 4.1v4.71Z" /></svg>;
+}
 
 export default function Header({ locale, setLocale }: { locale: Locale; setLocale: (locale: Locale) => void }) {
   const isFrench = locale === "fr";
@@ -15,7 +17,7 @@ export default function Header({ locale, setLocale }: { locale: Locale; setLocal
           </a>
           <a className="nav-icon" href="#work" aria-label={isFrench ? "Projets" : "Projects"}><Layers3 className="size-3.5" /></a>
           <a className="nav-icon" href="#about" aria-label={isFrench ? "Expériences" : "Experience"}><BriefcaseBusiness className="size-3.5" /></a>
-          <a className="nav-icon" href="https://www.linkedin.com/in/alexis-guerquin/" target="_blank" rel="noreferrer" aria-label={isFrench ? "Ouvrir mon profil LinkedIn" : "Open my LinkedIn profile"}><LoopingAnimateIcon icon={ExternalLinkIcon} size={17} color="currentColor" /></a>
+          <a className="nav-icon" href="https://www.linkedin.com/in/alexis-guerquin/" target="_blank" rel="noreferrer" aria-label={isFrench ? "Ouvrir mon profil LinkedIn" : "Open my LinkedIn profile"}><LinkedInIcon /></a>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="header-locale-switch" aria-label={isFrench ? "Choisir la langue" : "Choose language"}>

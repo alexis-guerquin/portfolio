@@ -1,0 +1,19 @@
+# Alexis Guerquin
+
+> Portfolio d'Alexis Guerquin, Product Designer et développeur freelance basé en France.
+
+## À propos
+
+Alexis Guerquin conçoit et développe des produits numériques : expériences UX/UI, applications iOS, sites web et plateformes SaaS.
+
+## Pages principales
+
+- [Accueil](https://alexis-guerquin.fr/) : présentation, services, processus et contact.
+- [Focus-Train](https://alexis-guerquin.fr/focus-train) : application iOS gamifiée de concentration.
+- [POCHA](https://alexis-guerquin.fr/pocha) : application web et mobile de focus et réduction des distractions.
+- [iDuerp · OSHAid](https://alexis-guerquin.fr/iduerp) : SaaS B2B de gestion de la sécurité en entreprise.
+- [The Endless Power](https://alexis-guerquin.fr/endless-power) : identité digitale et site d'une entreprise photovoltaïque.
+
+## Contact
+
+Utiliser le formulaire de contact du site ou le profil LinkedIn : https://www.linkedin.com/in/alexis-guerquin/

@@ -15,6 +15,8 @@ export type PortfolioProject = {
   additionalNote?: { heading: LocalizedText; text: LocalizedText };
 };
 
+export const siteUrl = "https://alexis-guerquin.fr";
+
 const visual = (src: string, fr: string, en: string, kind: Visual["kind"] = "image", format: Visual["format"] = "landscape", aspectRatio = format === "portrait" ? "792 / 1548" : "3016 / 1548"): Visual => ({ src, kind, format, aspectRatio, label: { fr, en }, alt: { fr, en } });
 
 export const portfolio: PortfolioProject[] = [
@@ -45,3 +47,7 @@ export const portfolio: PortfolioProject[] = [
     alt: "Aperçu du projet The Endless Power", cardFormat: "landscape", type: { fr: "Mission client · Site web", en: "Client work · Website" }, status: { label: { fr: "Terminé", en: "Completed" }, tone: "completed" }, tagline: { fr: "Créer l'identité digitale d'une entreprise photovoltaïque.", en: "Creating the digital identity of a solar energy company." }, description: [{ fr: "The Endless Power est une société spécialisée dans les projets photovoltaïques. Pour cette mission freelance, j'ai conçu sa direction artistique et son site vitrine.", en: "The Endless Power specializes in photovoltaic projects. For this freelance project, I designed its visual direction and corporate website." }], role: { fr: "Art Direction, UX/UI & Web Development", en: "Art Direction, UX/UI & Web Development" }, roleDescription: { fr: "J'ai réalisé seul la direction artistique, la charte graphique, l'expérience du site et son développement, y compris un simulateur d'estimation interactif.", en: "I independently created the art direction, visual identity, website experience and development, including an interactive estimate simulator." }, contributions: ["Art Direction", "Brand Identity", "UX/UI", "Web Development", "Interactive Simulator"], technologies: ["React", "Firebase"], visuals: [visual("/tep/tep-landing.png", "Landing page The Endless Power", "The Endless Power landing page")], cta: { fr: "Voir le site", en: "Visit website" }, url: "https://www.theendlesspower.com/",
   },
 ];
+
+export function getProjectById(id: string) {
+  return portfolio.find((project) => project.id === id);
+}

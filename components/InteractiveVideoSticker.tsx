@@ -19,6 +19,8 @@ type InteractiveVideoStickerProps = {
 const QUEUE_TARGET_DURATION_MS = 4_000;
 const QUEUE_BURST_TARGET_DURATION_MS = 1_500;
 const FALLBACK_VIDEO_DURATION_SECONDS = 3.05;
+// Browsers reject values outside their media playback range (commonly above 16×).
+const MAX_SAFE_PLAYBACK_RATE = 16;
 
 function AnimatedInteractionCount({ count, label }: { count: number; label: string }) {
   const [displayedCount, setDisplayedCount] = useState(count);
@@ -72,6 +74,15 @@ export default function InteractiveVideoSticker({
   const [playbackRate, setPlaybackRate] = useState(1);
   const [videoUnavailable, setVideoUnavailable] = useState(false);
 
+  const resetPlaybackState = () => {
+    isPlayingRef.current = false;
+    playbackRateRef.current = 1;
+    queuedReplaysRef.current = 0;
+    queueStartedAtRef.current = null;
+    setPlaybackRate(1);
+    setState("idle");
+  };
+
   // Keeps a burst of clicks very compact: every queued full replay is preserved,
   // while its speed is adjusted to clear the remaining queue in about 1.5 seconds.
   const adaptPlaybackRateToQueue = () => {
@@ -89,11 +100,18 @@ export default function InteractiveVideoSticker({
       Math.min(QUEUE_BURST_TARGET_DURATION_MS, QUEUE_TARGET_DURATION_MS - elapsed),
     ) / 1_000;
     const remainingVideoTime = Math.max(duration - video.currentTime, 0) + queuedReplaysRef.current * duration;
-    const nextRate = Math.max(1, remainingVideoTime / remainingTime);
+    const nextRate = Math.min(MAX_SAFE_PLAYBACK_RATE, Math.max(1, remainingVideoTime / remainingTime));
 
-    video.playbackRate = nextRate;
-    playbackRateRef.current = nextRate;
-    setPlaybackRate(nextRate);
+    try {
+      video.playbackRate = nextRate;
+      playbackRateRef.current = nextRate;
+      setPlaybackRate(nextRate);
+    } catch {
+      // Last-resort safe speed: keep processing the queue rather than freezing it.
+      video.playbackRate = 8;
+      playbackRateRef.current = 8;
+      setPlaybackRate(8);
+    }
   };
 
   const play = () => {
@@ -105,6 +123,8 @@ export default function InteractiveVideoSticker({
     if (isPlayingRef.current) {
       queuedReplaysRef.current += 1;
       adaptPlaybackRateToQueue();
+      // A browser can pause a highly accelerated video; a new click resumes it.
+      if (video.paused) void video.play().catch(resetPlaybackState);
       return;
     }
 
@@ -116,9 +136,8 @@ export default function InteractiveVideoSticker({
     setPlaybackRate(1);
     setState("playing");
     void video.play().catch(() => {
-      isPlayingRef.current = false;
-      setVideoUnavailable(true);
-      setState("idle");
+      // Do not treat a temporary playback rejection as a missing video source.
+      resetPlaybackState();
     });
   };
 
@@ -130,10 +149,7 @@ export default function InteractiveVideoSticker({
       video.currentTime = 0;
       adaptPlaybackRateToQueue();
       void video.play().catch(() => {
-        isPlayingRef.current = false;
-        queueStartedAtRef.current = null;
-        setVideoUnavailable(true);
-        setState("idle");
+        resetPlaybackState();
       });
       return;
     }

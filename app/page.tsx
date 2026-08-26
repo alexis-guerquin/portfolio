@@ -14,7 +14,7 @@ import ServiceConfigurator from "@/components/ServiceConfigurator";
 import SectionReveal from "@/components/SectionReveal";
 import { Locale } from "@/data/site";
 
-export default function Home() {
+export default function Home({ initialProjectId }: { initialProjectId?: string }) {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [locale, setLocale] = useState<Locale>("fr");
 
@@ -24,7 +24,7 @@ export default function Home() {
         <Header locale={locale} setLocale={setLocale} />
         <SectionReveal><Hero locale={locale} selectedSkills={selectedSkills} onToggleSkill={(skill) => setSelectedSkills((skills) => skills.includes(skill) ? skills.filter((item) => item !== skill) : [...skills, skill])} onReset={() => setSelectedSkills([])} /></SectionReveal>
       </div>
-      <SectionReveal><ProjectCarousel locale={locale} selectedSkills={selectedSkills} /></SectionReveal>
+      <SectionReveal><ProjectCarousel locale={locale} selectedSkills={selectedSkills} initialProjectId={initialProjectId} /></SectionReveal>
       <SectionReveal><ServiceConfigurator locale={locale} /></SectionReveal>
       <SectionReveal><ProcessStrip locale={locale} /></SectionReveal>
       <SectionReveal><InfoSections locale={locale} /></SectionReveal>

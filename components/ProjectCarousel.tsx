@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { ExternalLinkIcon } from "@animateicons/react/lucide";
 import LoopingAnimateIcon from "@/components/LoopingAnimateIcon";
-import { Locale, portfolio, PortfolioProject } from "@/data/site";
+import { getProjectById, Locale, portfolio, PortfolioProject } from "@/data/site";
 
 const copy = { fr: { role: "Mon rôle", contribution: "Participation", technologies: "Technologies", visuals: "Visuels", close: "Fermer", enlarge: "Agrandir le média", appleStore: "Apple Store", playStore: "Google Play", comingSoon: "Prochainement" }, en: { role: "My role", contribution: "Contribution", technologies: "Technologies", visuals: "Visuals", close: "Close", enlarge: "Enlarge media", appleStore: "Apple Store", playStore: "Google Play", comingSoon: "Coming soon" } };
 
@@ -55,9 +55,25 @@ function ProjectModal({ project, close, locale }: { project: PortfolioProject; c
   </div>;
 }
 
-export default function ProjectCarousel({ selectedSkills = [], locale }: { selectedSkills?: string[]; locale: Locale }) {
+export default function ProjectCarousel({ selectedSkills = [], locale, initialProjectId }: { selectedSkills?: string[]; locale: Locale; initialProjectId?: string }) {
   const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
-  useEffect(() => { const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setSelectedProject(null); }; window.addEventListener("keydown", closeOnEscape); return () => window.removeEventListener("keydown", closeOnEscape); }, []);
+  const openProject = (project: PortfolioProject) => {
+    window.history.pushState({ project: project.id }, "", `/${project.id}`);
+    setSelectedProject(project);
+  };
+  const closeProject = () => {
+    window.history.replaceState({}, "", "/");
+    setSelectedProject(null);
+  };
+  useEffect(() => { const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") closeProject(); }; window.addEventListener("keydown", closeOnEscape); return () => window.removeEventListener("keydown", closeOnEscape); }, []);
+  useEffect(() => {
+    if (initialProjectId) setSelectedProject(getProjectById(initialProjectId) ?? null);
+  }, [initialProjectId]);
+  useEffect(() => {
+    const onPopState = () => setSelectedProject(getProjectById(window.location.pathname.slice(1)) ?? null);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
   useEffect(() => {
     const isOpen = Boolean(selectedProject);
     document.body.classList.toggle("modal-open", isOpen);
@@ -70,5 +86,5 @@ export default function ProjectCarousel({ selectedSkills = [], locale }: { selec
   const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
   const filteredProjects = selectedSkills.length ? portfolio.filter((project) => selectedSkills.some((skill) => [...project.contributions, ...(project.technologies || [])].some((item) => normalize(item) === normalize(skill)))) : portfolio;
   const label = locale === "fr" ? "Projets persos ou clients" : "Personal or client projects";
-  return <section id="work" className="relative border-y border-black/[.10] bg-[#f7f7f7] py-16 sm:py-20"><div className="mx-auto mb-8 w-full max-w-[920px] px-5 sm:px-6"><h2 className="text-3xl font-black tracking-[-.04em] sm:text-4xl">{label}</h2></div><div className="marquee" aria-label={label}><div className="marquee-track">{[...filteredProjects, ...filteredProjects].map((item, index) => <article key={`${item.id}-${index}`} className={`group relative shrink-0 ${selectedSkills.length ? "skill-match" : ""}`} data-match-tooltip="Correspond aux compétences sélectionnées"><button type="button" onClick={() => setSelectedProject(item)} className="relative block text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-4" aria-label={`${locale === "fr" ? "Ouvrir le projet" : "Open project"} ${item.title}`}><div className={`relative h-[285px] overflow-hidden rounded-[13px] border border-black/10 bg-[#e8e8e8] p-3 shadow-card sm:h-[340px] ${item.cardFormat === "portrait" ? "w-[220px] sm:w-[270px]" : "w-[380px] sm:w-[500px]"}`}><Image src={item.src} alt={item.alt} fill sizes={item.cardFormat === "portrait" ? "270px" : "500px"} priority={index < 3} className="object-contain p-3 transition duration-500 group-hover:scale-[1.045]" /><div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-[9px] border border-black/[.12] bg-white px-3 py-2.5 shadow-[inset_0_0_0_1px_rgba(0,0,0,.035)]"><span className="min-w-0 text-base font-black tracking-[-.02em]">{item.title}</span><span className={`project-status project-status--${item.status.tone} project-card-status`}>{item.status.label[locale]}</span></div></div></button></article>)}</div></div><div className="mx-auto mt-12 h-[3px] w-10 rounded-full bg-black" />{selectedProject && createPortal(<ProjectModal project={selectedProject} close={() => setSelectedProject(null)} locale={locale} />, document.body)}</section>;
+  return <section id="work" className="relative border-y border-black/[.10] bg-[#f7f7f7] py-16 sm:py-20"><div className="mx-auto mb-8 w-full max-w-[920px] px-5 sm:px-6"><h2 className="text-3xl font-black tracking-[-.04em] sm:text-4xl">{label}</h2></div><div className="marquee" aria-label={label}><div className="marquee-track">{[...filteredProjects, ...filteredProjects].map((item, index) => <article key={`${item.id}-${index}`} className={`group relative shrink-0 ${selectedSkills.length ? "skill-match" : ""}`} data-match-tooltip="Correspond aux compétences sélectionnées"><button type="button" onClick={() => openProject(item)} className="relative block text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-4" aria-label={`${locale === "fr" ? "Ouvrir le projet" : "Open project"} ${item.title}`}><div className={`relative h-[285px] overflow-hidden rounded-[13px] border border-black/10 bg-[#e8e8e8] p-3 shadow-card sm:h-[340px] ${item.cardFormat === "portrait" ? "w-[220px] sm:w-[270px]" : "w-[380px] sm:w-[500px]"}`}><Image src={item.src} alt={item.alt} fill sizes={item.cardFormat === "portrait" ? "270px" : "500px"} priority={index < 3} className="object-contain p-3 transition duration-500 group-hover:scale-[1.045]" /><div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-[9px] border border-black/[.12] bg-white px-3 py-2.5 shadow-[inset_0_0_0_1px_rgba(0,0,0,.035)]"><span className="min-w-0 text-base font-black tracking-[-.02em]">{item.title}</span><span className={`project-status project-status--${item.status.tone} project-card-status`}>{item.status.label[locale]}</span></div></div></button></article>)}</div></div><div className="mx-auto mt-12 h-[3px] w-10 rounded-full bg-black" />{selectedProject && createPortal(<ProjectModal project={selectedProject} close={closeProject} locale={locale} />, document.body)}</section>;
 }

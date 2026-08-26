@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { ArrowDown, Phone, RotateCcw } from "lucide-react";
+import InteractiveVideoSticker from "@/components/InteractiveVideoSticker";
 import { Locale } from "@/data/site";
 
 const expertise = [
@@ -7,15 +7,20 @@ const expertise = [
   "Product Design", "UX / UI", "Design System", "Gamification", "Illustration", "Motion", "Figma", "Photoshop", "Git", "GitHub", "GitLab", "Azure DevOps", "Jira",
 ];
 
-export default function Hero({ locale, selectedSkills, onToggleSkill, onReset }: { locale: Locale; selectedSkills: string[]; onToggleSkill: (skill: string) => void; onReset: () => void }) {
+export default function Hero({ locale, selectedSkills, onToggleSkill, onReset, interactionCount, onStickerInteraction }: { locale: Locale; selectedSkills: string[]; onToggleSkill: (skill: string) => void; onReset: () => void; interactionCount: number; onStickerInteraction: () => void }) {
   const t = locale === "fr" ? { greeting: <>Hey, je suis Alexis,<br />travaillons <span className="relative inline-block whitespace-nowrap">ensemble !<span className="ml-1.5 inline-block rotate-[-7deg] align-middle text-xs font-medium tracking-normal text-black/55 sm:absolute sm:left-[calc(100%+.5rem)] sm:top-1/2 sm:ml-0 sm:-translate-y-1/2 sm:text-sm">sur vos projets</span></span></>, available: "Disponible pour de nouvelles opportunités", contact: "Me contacter", discover: "Découvrez ce que je sais faire", expertise: "Technologies & expertises", reset: "Réinitialiser", label: "Technologies et expertises maîtrisées" } : { greeting: <>Hey, I&apos;m Alexis,<br />let&apos;s build <span className="relative inline-block whitespace-nowrap">together!<span className="ml-1.5 inline-block rotate-[-7deg] align-middle text-xs font-medium tracking-normal text-black/55 sm:absolute sm:left-[calc(100%+.5rem)] sm:top-1/2 sm:ml-0 sm:-translate-y-1/2 sm:text-sm">your projects</span></span></>, available: "Available for new opportunities", contact: "Contact me", discover: "Discover what I can do", expertise: "Technologies & expertise", reset: "Reset", label: "Technologies and areas of expertise" };
   return (
     <section id="top" className="mx-auto flex w-full max-w-[920px] flex-col items-center justify-start px-5 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24">
-      <div className="w-full max-w-[520px]">
-        <div className="mb-6 flex items-center gap-2">
-          <div className="relative size-[72px] overflow-hidden rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,.16)]">
-            <Image src="/1739529957561.jpeg" alt="Alexis Guerquin" fill sizes="72px" className="object-cover" priority />
-          </div>
+      <div className="relative w-full max-w-[520px]">
+        <div className="mb-9 flex items-start">
+          <InteractiveVideoSticker
+            previewSrc="/pp-preview.jpg"
+            videoSrc="/pp_animated.mp4"
+            previewAlt="Alexis tenant une glace, en format sticker"
+            globalCount={interactionCount}
+            interactionLabel={locale === "fr" ? "crocs" : "chomps"}
+            onInteraction={onStickerInteraction}
+          />
         </div>
         <h1 className="max-w-[600px] text-[2.15rem] font-black leading-[1.05] tracking-tightest sm:text-5xl">
           {t.greeting}

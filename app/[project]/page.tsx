@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Home from "@/app/page";
+import Home from "@/components/Home";
 import { getProjectById, portfolio, siteUrl } from "@/data/site";
 
 type Props = { params: Promise<{ project: string }> };

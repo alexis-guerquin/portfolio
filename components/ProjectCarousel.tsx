@@ -8,7 +8,7 @@ import { ExternalLinkIcon } from "@animateicons/react/lucide";
 import LoopingAnimateIcon from "@/components/LoopingAnimateIcon";
 import { getProjectById, Locale, portfolio, PortfolioProject } from "@/data/site";
 
-const copy = { fr: { role: "Mon rôle", contribution: "Participation", technologies: "Technologies", visuals: "Visuels", close: "Fermer", enlarge: "Agrandir le média", appleStore: "Apple Store", playStore: "Google Play", comingSoon: "Prochainement" }, en: { role: "My role", contribution: "Contribution", technologies: "Technologies", visuals: "Visuals", close: "Close", enlarge: "Enlarge media", appleStore: "Apple Store", playStore: "Google Play", comingSoon: "Coming soon" } };
+const copy = { fr: { role: "Mon rôle", contribution: "Participation", technologies: "Technologies", visuals: "Visuels", close: "Fermer", enlarge: "Agrandir le média", appleStore: "Apple Store", playStore: "Google Play", inDevelopment: "En cours de développement" }, en: { role: "My role", contribution: "Contribution", technologies: "Technologies", visuals: "Visuals", close: "Close", enlarge: "Enlarge media", appleStore: "Apple Store", playStore: "Google Play", inDevelopment: "In development" } };
 
 function Media({ item, locale, className = "project-media" }: { item: PortfolioProject["visuals"][number]; locale: Locale; className?: string }) {
   return item.kind === "video" ? <video key={item.src} className={className} src={item.src} aria-label={item.alt[locale]} autoPlay loop muted playsInline /> : <Image src={item.src} alt={item.alt[locale]} fill sizes="(max-width: 640px) 100vw, 920px" className={className} />;
@@ -36,7 +36,7 @@ function ProjectMediaGrid({ visuals, locale, className = "" }: { visuals: Portfo
 
 function ProjectModal({ project, close, locale }: { project: PortfolioProject; close: () => void; locale: Locale }) {
   const t = copy[locale];
-  const projectLinks = <div className="project-links"><a className="project-cta" href={project.url} target="_blank" rel="noreferrer">{project.cta[locale]} <LoopingAnimateIcon icon={ExternalLinkIcon} size={17} color="currentColor" /></a>{project.storeLinks && <div className="project-store-links" aria-label={locale === "fr" ? "Applications mobiles" : "Mobile apps"}><a href={project.storeLinks.apple} target="_blank" rel="noreferrer"><AppleStoreIcon /><span><strong>{t.appleStore}</strong><small>{t.comingSoon}</small></span><LoopingAnimateIcon icon={ExternalLinkIcon} size={15} color="currentColor" /></a><a href={project.storeLinks.google} target="_blank" rel="noreferrer"><GooglePlayIcon /><span><strong>{t.playStore}</strong><small>{t.comingSoon}</small></span><LoopingAnimateIcon icon={ExternalLinkIcon} size={15} color="currentColor" /></a></div>}</div>;
+  const projectLinks = <div className="project-links"><a className="project-cta" href={project.url} target="_blank" rel="noreferrer">{project.cta[locale]} <LoopingAnimateIcon icon={ExternalLinkIcon} size={17} color="currentColor" /></a>{project.storeLinks && <div className="project-store-links" aria-label={locale === "fr" ? "Applications mobiles" : "Mobile apps"}><a href={project.storeLinks.apple} target="_blank" rel="noreferrer"><AppleStoreIcon /><span><strong>{t.appleStore}</strong></span><LoopingAnimateIcon icon={ExternalLinkIcon} size={15} color="currentColor" /></a><a href={project.storeLinks.google} target="_blank" rel="noreferrer"><GooglePlayIcon /><span><strong>{t.playStore}</strong><small>{t.inDevelopment}</small></span><LoopingAnimateIcon icon={ExternalLinkIcon} size={15} color="currentColor" /></a></div>}</div>;
   return <div className="project-overlay" role="presentation" onMouseDown={close}>
     <article role="dialog" aria-modal="true" aria-labelledby="project-title" className="project-modal" onMouseDown={(event) => event.stopPropagation()}>
       <header className="project-modal-header"><div><p className="project-eyebrow">{project.type[locale]}</p><div className="project-title-row"><h2 id="project-title">{project.title}</h2><span className={`project-status project-status--${project.status.tone}`}>{project.status.label[locale]}</span></div></div><div className="project-modal-actions">{projectLinks}<button type="button" onClick={close} className="modal-close" aria-label={t.close}><X className="size-4" /></button></div></header>
@@ -58,11 +58,11 @@ function ProjectModal({ project, close, locale }: { project: PortfolioProject; c
 export default function ProjectCarousel({ selectedSkills = [], locale, initialProjectId }: { selectedSkills?: string[]; locale: Locale; initialProjectId?: string }) {
   const [selectedProject, setSelectedProject] = useState<PortfolioProject | null>(null);
   const openProject = (project: PortfolioProject) => {
-    window.history.pushState({ project: project.id }, "", `/${project.id}`);
+    window.history.pushState({ project: project.id }, "", `${locale === "fr" ? "/fr" : ""}/${project.id}`);
     setSelectedProject(project);
   };
   const closeProject = () => {
-    window.history.replaceState({}, "", "/");
+    window.history.replaceState({}, "", locale === "fr" ? "/fr" : "/");
     setSelectedProject(null);
   };
   useEffect(() => { const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") closeProject(); }; window.addEventListener("keydown", closeOnEscape); return () => window.removeEventListener("keydown", closeOnEscape); }, []);
@@ -70,7 +70,7 @@ export default function ProjectCarousel({ selectedSkills = [], locale, initialPr
     if (initialProjectId) setSelectedProject(getProjectById(initialProjectId) ?? null);
   }, [initialProjectId]);
   useEffect(() => {
-    const onPopState = () => setSelectedProject(getProjectById(window.location.pathname.slice(1)) ?? null);
+    const onPopState = () => setSelectedProject(getProjectById(window.location.pathname.split("/").filter(Boolean).at(-1) ?? "") ?? null);
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);

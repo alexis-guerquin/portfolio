@@ -6,5 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteUrl, lastModified, changeFrequency: "monthly", priority: 1 },
     ...portfolio.map((project) => ({ url: `${siteUrl}/${project.id}`, lastModified, changeFrequency: "monthly" as const, priority: 0.8 })),
+    { url: `${siteUrl}/fr`, lastModified, changeFrequency: "monthly", priority: 0.9 },
+    ...portfolio.map((project) => ({ url: `${siteUrl}/fr/${project.id}`, lastModified, changeFrequency: "monthly" as const, priority: 0.7 })),
   ];
 }

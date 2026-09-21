@@ -14,10 +14,22 @@ import ServiceConfigurator from "@/components/ServiceConfigurator";
 import SectionReveal from "@/components/SectionReveal";
 import { Locale } from "@/data/site";
 
-export default function Home({ initialProjectId }: { initialProjectId?: string }) {
+export default function Home({ initialProjectId, initialLocale = "en" }: { initialProjectId?: string; initialLocale?: Locale }) {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [locale, setLocale] = useState<Locale>("fr");
+  const [locale, setLocale] = useState<Locale>(initialLocale);
   const [stickerInteractions, setStickerInteractions] = useState(0);
+
+  const changeLocale = (nextLocale: Locale) => {
+    if (nextLocale === locale) return;
+
+    const pathSegments = window.location.pathname.split("/").filter(Boolean);
+    const projectId = pathSegments.at(-1);
+    const isProjectPage = Boolean(projectId && projectId !== "fr");
+    const nextPath = nextLocale === "fr" ? (isProjectPage ? `/fr/${projectId}` : "/fr") : (isProjectPage ? `/${projectId}` : "/");
+
+    window.history.pushState({}, "", nextPath);
+    setLocale(nextLocale);
+  };
 
   useEffect(() => {
     let isCurrent = true;
@@ -61,7 +73,7 @@ export default function Home({ initialProjectId }: { initialProjectId?: string }
   return (
     <main className="min-h-screen bg-white text-[#181818]">
       <div className="site-column min-h-[1px]">
-        <Header locale={locale} setLocale={setLocale} />
+        <Header locale={locale} setLocale={changeLocale} />
         <SectionReveal><Hero locale={locale} selectedSkills={selectedSkills} onToggleSkill={(skill) => setSelectedSkills((skills) => skills.includes(skill) ? skills.filter((item) => item !== skill) : [...skills, skill])} onReset={() => setSelectedSkills([])} interactionCount={stickerInteractions} onStickerInteraction={() => void incrementStickerInteractions()} /></SectionReveal>
       </div>
       <SectionReveal><ProjectCarousel locale={locale} selectedSkills={selectedSkills} initialProjectId={initialProjectId} /></SectionReveal>

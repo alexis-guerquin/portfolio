@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import DemoVideo from "@/components/DemoVideo";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
@@ -10,8 +11,8 @@ import { getProjectById, Locale, portfolio, PortfolioProject } from "@/data/site
 
 const copy = { fr: { role: "Mon rôle", contribution: "Participation", technologies: "Technologies", visuals: "Visuels", close: "Fermer", enlarge: "Agrandir le média", appleStore: "Apple Store", playStore: "Google Play" }, en: { role: "My role", contribution: "Contribution", technologies: "Technologies", visuals: "Visuals", close: "Close", enlarge: "Enlarge media", appleStore: "Apple Store", playStore: "Google Play" } };
 
-function Media({ item, locale, className = "project-media" }: { item: PortfolioProject["visuals"][number]; locale: Locale; className?: string }) {
-  return item.kind === "video" ? <video key={item.src} className={className} src={item.src} aria-label={item.alt[locale]} autoPlay loop muted playsInline /> : <Image src={item.src} alt={item.alt[locale]} fill sizes="(max-width: 640px) 100vw, 920px" className={className} />;
+function Media({ item, locale, className = "project-media", suspended = false }: { item: PortfolioProject["visuals"][number]; locale: Locale; className?: string; suspended?: boolean }) {
+  return item.kind === "video" ? <DemoVideo key={item.src} className={className} src={item.src} poster={item.poster} label={item.alt[locale]} suspended={suspended} /> : <Image src={item.src} alt={item.alt[locale]} fill sizes="(max-width: 640px) 100vw, 920px" className={className} />;
 }
 
 function GooglePlayIcon() {
@@ -28,8 +29,8 @@ function ProjectMediaGrid({ visuals, locale, className = "" }: { visuals: Portfo
   const portraitMedia = visuals.filter((item) => item.format === "portrait");
   const additionalMedia = visuals.filter((item) => item.format !== "portrait");
   return <section className={`project-visuals ${className}`} aria-label={copy[locale].visuals}>
-    {portraitMedia.length > 0 && <div className="project-portrait-media">{portraitMedia.map((item) => <button key={item.src} type="button" className="project-gallery project-gallery--portrait" style={{ aspectRatio: item.aspectRatio }} aria-label={copy[locale].enlarge} onClick={() => setExpandedItem(item)}><Media item={item} locale={locale} /></button>)}</div>}
-    {additionalMedia.length > 0 && <div className="project-additional-media">{additionalMedia.map((item) => <button key={item.src} type="button" className={`project-gallery project-gallery--${item.format}`} style={{ aspectRatio: item.aspectRatio }} aria-label={copy[locale].enlarge} onClick={() => setExpandedItem(item)}><Media item={item} locale={locale} /></button>)}</div>}
+    {portraitMedia.length > 0 && <div className="project-portrait-media">{portraitMedia.map((item) => <button key={item.src} type="button" className="project-gallery project-gallery--portrait" style={{ aspectRatio: item.aspectRatio }} aria-label={copy[locale].enlarge} onClick={() => setExpandedItem(item)}><Media item={item} locale={locale} suspended={Boolean(expandedItem)} /></button>)}</div>}
+    {additionalMedia.length > 0 && <div className="project-additional-media">{additionalMedia.map((item) => <button key={item.src} type="button" className={`project-gallery project-gallery--${item.format}`} style={{ aspectRatio: item.aspectRatio }} aria-label={copy[locale].enlarge} onClick={() => setExpandedItem(item)}><Media item={item} locale={locale} suspended={Boolean(expandedItem)} /></button>)}</div>}
     {expandedItem && createPortal(<div className="media-lightbox" role="presentation" onMouseDown={() => setExpandedItem(null)}><div className={`media-lightbox-content media-lightbox-content--${expandedItem.format}`} style={{ aspectRatio: expandedItem.aspectRatio }} role="dialog" aria-modal="true" aria-label={expandedItem.alt[locale]} onMouseDown={(event) => event.stopPropagation()}><button className="media-lightbox-close" type="button" onClick={() => setExpandedItem(null)} aria-label={copy[locale].close}><X className="size-5" /></button><Media item={expandedItem} locale={locale} className="media-lightbox-media" /></div></div>, document.body)}
   </section>;
 }

@@ -53,7 +53,7 @@ function AnimatedInteractionCount({ count, label }: { count: number; label: stri
 
 /**
  * A lightweight, reusable video sticker. The video is only played after an
- * explicit interaction; metadata is preloaded so the first click feels prompt.
+ * explicit interaction; its source is attached only when the user starts playback.
  */
 export default function InteractiveVideoSticker({
   previewSrc,
@@ -118,6 +118,10 @@ export default function InteractiveVideoSticker({
     const video = videoRef.current;
     if (!video || videoUnavailable) return;
 
+    if (!video.getAttribute("src")) {
+      video.src = videoSrc;
+      video.load();
+    }
     onInteraction?.();
 
     if (isPlayingRef.current) {
@@ -162,6 +166,27 @@ export default function InteractiveVideoSticker({
     window.requestAnimationFrame(() => setState("idle"));
   };
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const pause = () => { video.pause(); resetPlaybackState(); };
+    const updateVisibility = () => {
+      if (document.hidden || document.body.classList.contains("modal-open")) pause();
+    };
+    const observer = new IntersectionObserver(([entry]) => { if (!entry.isIntersecting) pause(); });
+    observer.observe(video);
+    document.addEventListener("visibilitychange", updateVisibility);
+    window.addEventListener("portfolio:project-visibility", updateVisibility);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", updateVisibility);
+      window.removeEventListener("portfolio:project-visibility", updateVisibility);
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+    };
+  }, []);
+
   const isPlaying = state === "playing";
 
   return (
@@ -182,10 +207,9 @@ export default function InteractiveVideoSticker({
         />
         <video
           ref={videoRef}
-          src={videoSrc}
           muted
           playsInline
-          preload="metadata"
+          preload="none"
           onEnded={handleEnded}
           onError={() => setVideoUnavailable(true)}
           className={`absolute inset-0 size-full rounded-[24%] object-cover shadow-[0_12px_28px_rgba(0,0,0,0.12)] transition-opacity duration-200 ${isPlaying ? "opacity-100" : "pointer-events-none opacity-0"}`}

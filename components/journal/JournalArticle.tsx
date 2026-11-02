@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import type { ProjectJournal } from "@/data/project-journal";
+import { journalUpdated, type ProjectJournal } from "@/data/project-journal";
 import { siteUrl, type Locale } from "@/data/site";
 import JournalShell from "./JournalShell";
 import JournalWeek from "./JournalWeek";
@@ -19,7 +19,9 @@ export default function JournalArticle({ journal, locale }: { journal: ProjectJo
   const schema = {
     "@context": "https://schema.org", "@type": "BlogPosting",
     headline: `${journal.projectName} — ${journal.month}`, description: plainJournalText(journal.description),
-    datePublished: journal.published, dateModified: journal.published, inLanguage: copy.dateLocale,
+    datePublished: journal.published, dateModified: journalUpdated(journal),
+    keywords: [...new Set(journal.weeks.flatMap((week) => week.tags))].join(", "),
+    isPartOf: { "@type": "Blog", name: `${journal.projectName} — ${copy.journal}`, url: `${siteUrl}${journalHref(locale, journal.project)}` }, inLanguage: copy.dateLocale,
     mainEntityOfPage: `${siteUrl}${journalHref(locale, journal.project, journal.slug)}`,
     author: { "@type": "Person", name: "Alexis Guerquin", url: siteUrl },
     image: `${siteUrl}${journal.cover.src}`,

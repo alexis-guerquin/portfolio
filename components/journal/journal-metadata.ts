@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getProjectJournal, getProjectJournals } from "@/data/project-journal";
+import { getProjectJournal, getProjectJournals, journalUpdated } from "@/data/project-journal";
 import { getProjectById, siteUrl, type Locale } from "@/data/site";
 import { journalCopy, journalHref } from "./journal-copy";
 import { plainJournalText } from "./plain-text";
@@ -16,7 +16,7 @@ export function journalIndexMetadata(project: string, locale: Locale): Metadata 
   const description = copy.indexDescription(info.title);
   const url = journalHref(locale, project);
   const cover = journals[0].cover;
-  return { title, description, alternates: { canonical: url, languages: languages(project) }, openGraph: { type: "website", locale: copy.ogLocale, title, description, url, images: [cover.src] }, twitter: { card: "summary_large_image", title, description, images: [cover.src] } };
+  return { title, description, alternates: { canonical: url, languages: languages(project), types: { "application/rss+xml": `${siteUrl}${copy.portfolioPath === "/" ? "" : copy.portfolioPath}/feed.xml` } }, openGraph: { type: "website", locale: copy.ogLocale, title, description, url, images: [cover.src] }, twitter: { card: "summary_large_image", title, description, images: [cover.src] } };
 }
 
 export function journalArticleMetadata(project: string, month: string, locale: Locale): Metadata {
@@ -29,7 +29,7 @@ export function journalArticleMetadata(project: string, month: string, locale: L
   return {
     title, description,
     alternates: { canonical: url, languages: languages(project, month) },
-    openGraph: { type: "article", locale: copy.ogLocale, url, title, description, publishedTime: journal.published, modifiedTime: journal.published, authors: ["Alexis Guerquin"], images: [{ url: journal.cover.src, alt: journal.cover.alt }] },
+    openGraph: { type: "article", locale: copy.ogLocale, url, title, description, publishedTime: journal.published, modifiedTime: journalUpdated(journal), authors: ["Alexis Guerquin"], images: [{ url: journal.cover.src, alt: journal.cover.alt }] },
     twitter: { card: "summary_large_image", title, description, images: [journal.cover.src] },
   };
 }

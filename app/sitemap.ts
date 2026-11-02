@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { portfolio, siteUrl, type Locale } from "@/data/site";
-import { projectJournals } from "@/data/project-journal";
+import { journalUpdated, projectJournals } from "@/data/project-journal";
 import { journalHref } from "@/components/journal/journal-copy";
 
 const locales: Locale[] = ["en", "fr"];
@@ -8,8 +8,8 @@ const locales: Locale[] = ["en", "fr"];
 function journalEntries(locale: Locale): MetadataRoute.Sitemap {
   const projects = [...new Set(projectJournals.map(({ project }) => project))];
   return [
-    ...projects.map((project) => ({ url: `${siteUrl}${journalHref(locale, project)}`, lastModified: new Date(projectJournals.find((journal) => journal.project === project)!.published), changeFrequency: "monthly" as const, priority: 0.7 })),
-    ...projectJournals.map((journal) => ({ url: `${siteUrl}${journalHref(locale, journal.project, journal.slug)}`, lastModified: new Date(journal.published), changeFrequency: "monthly" as const, priority: 0.7 })),
+    ...projects.map((project) => ({ url: `${siteUrl}${journalHref(locale, project)}`, lastModified: new Date(projectJournals.filter((journal) => journal.project === project).map(journalUpdated).sort().at(-1)!), changeFrequency: "weekly" as const, priority: 0.7 })),
+    ...projectJournals.map((journal) => ({ url: `${siteUrl}${journalHref(locale, journal.project, journal.slug)}`, lastModified: new Date(journalUpdated(journal)), changeFrequency: "weekly" as const, priority: 0.7 })),
   ];
 }
 

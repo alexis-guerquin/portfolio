@@ -72,6 +72,8 @@ export type ProjectJournal = {
   slug: string;
   month: string;
   published: string;
+  /** Date of the latest weekly update (ISO). Drives dateModified, the sitemap and the feeds. */
+  updated?: string;
   description: string;
   overview: string;
   weeks: JournalWeek[];
@@ -85,6 +87,8 @@ const journalsByLocale: Record<Locale, ProjectJournal[]> = {
 
 /** Both locales share the same projects and slugs, so this list drives static params and the sitemap. */
 export const projectJournals = journalsByLocale.fr;
+
+export const journalUpdated = (journal: ProjectJournal) => journal.updated ?? journal.published;
 
 export function getProjectJournals(project: string, locale: Locale) {
   return journalsByLocale[locale].filter((journal) => journal.project === project).sort((a, b) => b.published.localeCompare(a.published));
